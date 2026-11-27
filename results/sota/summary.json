@@ -1,0 +1,161 @@
+{
+  "experiment": "Mask Sampling collaborative Catmull-Rom with C+ fallback, versus exact Catmull-Rom and two-tap stochastic texture filtering",
+  "source": "Akenine-Moller, Ebelin, Pharr, and Wronski, Collaborative Texture Filtering, HPG 2025, sections 3.3, 3.4, and 4.2",
+  "source_url": "https://arxiv.org/abs/2506.17770",
+  "scope": "CPU tile model of an 8 by 4 wave. No GPU intrinsics, neural decoder, DLSS, or hardware timing.",
+  "settings": {
+    "angles": [
+      0,
+      45,
+      70
+    ],
+    "texture_sizes": [
+      32,
+      128,
+      512
+    ],
+    "textures": [
+      "smooth_low",
+      "smooth_high",
+      "checker"
+    ],
+    "seeds": 4,
+    "resolution": [
+      512,
+      512
+    ],
+    "tile": [
+      8,
+      4
+    ]
+  },
+  "checks": {
+    "exact_tile_max_abs_error": 0.0,
+    "constant_max_abs_error": 5.551115123125783e-17,
+    "two_tap_mean_max_abs_error": 0.005719378347918691
+  },
+  "groups": [
+    {
+      "texture_size": 32,
+      "angle_degrees": 0,
+      "median_magnification": 10.523825186855115,
+      "perfect_pixel_percent": 99.70326409495549,
+      "perfect_full_tile_percent": 100.0,
+      "mask_cplus_evals_per_pixel": 0.6079955927831825,
+      "mask_cplus_psnr_vs_bicubic_db": 58.21538783809442,
+      "two_tap_psnr_vs_bicubic_db": 14.318230149780932,
+      "mask_cplus_analytic_psnr_db": 32.84243611321499,
+      "two_tap_analytic_psnr_db": 13.15896285635302,
+      "exact_analytic_psnr_db": 32.84243611321499
+    },
+    {
+      "texture_size": 32,
+      "angle_degrees": 45,
+      "median_magnification": 8.225595237311486,
+      "perfect_pixel_percent": 99.55534381451484,
+      "perfect_full_tile_percent": 100.0,
+      "mask_cplus_evals_per_pixel": 0.6378910592345561,
+      "mask_cplus_psnr_vs_bicubic_db": 55.093300974140824,
+      "two_tap_psnr_vs_bicubic_db": 14.329895396110501,
+      "mask_cplus_analytic_psnr_db": 32.86767562568705,
+      "two_tap_analytic_psnr_db": 13.145736511592704,
+      "exact_analytic_psnr_db": 32.86767562568705
+    },
+    {
+      "texture_size": 32,
+      "angle_degrees": 70,
+      "median_magnification": 6.628838228834705,
+      "perfect_pixel_percent": 91.33705997884879,
+      "perfect_full_tile_percent": 90.86134453781513,
+      "mask_cplus_evals_per_pixel": 0.7441607493579091,
+      "mask_cplus_psnr_vs_bicubic_db": 57.310038713544316,
+      "two_tap_psnr_vs_bicubic_db": 14.352459139847866,
+      "mask_cplus_analytic_psnr_db": 32.82122096228377,
+      "two_tap_analytic_psnr_db": 13.132621110129273,
+      "exact_analytic_psnr_db": 32.82481983014754
+    },
+    {
+      "texture_size": 128,
+      "angle_degrees": 0,
+      "median_magnification": 2.6309562967137787,
+      "perfect_pixel_percent": 20.693886238715898,
+      "perfect_full_tile_percent": 19.86863711001642,
+      "mask_cplus_evals_per_pixel": 0.9826465837809413,
+      "mask_cplus_psnr_vs_bicubic_db": 57.27540696788702,
+      "two_tap_psnr_vs_bicubic_db": 23.30916510640867,
+      "mask_cplus_analytic_psnr_db": 46.960284734513834,
+      "two_tap_analytic_psnr_db": 22.3816067531172,
+      "exact_analytic_psnr_db": 61.12775598356689
+    },
+    {
+      "texture_size": 128,
+      "angle_degrees": 45,
+      "median_magnification": 2.0563988093278716,
+      "perfect_pixel_percent": 9.858662855327934,
+      "perfect_full_tile_percent": 9.58904109589041,
+      "mask_cplus_evals_per_pixel": 0.9900269969826901,
+      "mask_cplus_psnr_vs_bicubic_db": 48.75123353285975,
+      "two_tap_psnr_vs_bicubic_db": 23.3047152376089,
+      "mask_cplus_analytic_psnr_db": 40.41288658661375,
+      "two_tap_analytic_psnr_db": 22.42651459813199,
+      "exact_analytic_psnr_db": 61.17480592293426
+    },
+    {
+      "texture_size": 128,
+      "angle_degrees": 70,
+      "median_magnification": 1.6572095572086762,
+      "perfect_pixel_percent": 0.07251850732739085,
+      "perfect_full_tile_percent": 0.0,
+      "mask_cplus_evals_per_pixel": 0.9999697839552802,
+      "mask_cplus_psnr_vs_bicubic_db": 35.90197700258465,
+      "two_tap_psnr_vs_bicubic_db": 23.336232129064523,
+      "mask_cplus_analytic_psnr_db": 31.82075460847557,
+      "two_tap_analytic_psnr_db": 22.435261654710985,
+      "exact_analytic_psnr_db": 61.31464325066167
+    },
+    {
+      "texture_size": 512,
+      "angle_degrees": 0,
+      "median_magnification": 0.6577390741784447,
+      "perfect_pixel_percent": 0.0,
+      "perfect_full_tile_percent": 0.0,
+      "mask_cplus_evals_per_pixel": 1.0,
+      "mask_cplus_psnr_vs_bicubic_db": 35.538818231922534,
+      "two_tap_psnr_vs_bicubic_db": 32.921544863782735,
+      "mask_cplus_analytic_psnr_db": 34.14482803658263,
+      "two_tap_analytic_psnr_db": 31.92543327884805,
+      "exact_analytic_psnr_db": 87.19436141731244
+    },
+    {
+      "texture_size": 512,
+      "angle_degrees": 45,
+      "median_magnification": 0.5140997023319679,
+      "perfect_pixel_percent": 0.0,
+      "perfect_full_tile_percent": 0.0,
+      "mask_cplus_evals_per_pixel": 1.0,
+      "mask_cplus_psnr_vs_bicubic_db": 34.53229605695149,
+      "two_tap_psnr_vs_bicubic_db": 32.97931304437382,
+      "mask_cplus_analytic_psnr_db": 33.59812665251394,
+      "two_tap_analytic_psnr_db": 32.25778394966507,
+      "exact_analytic_psnr_db": 88.07762392853213
+    },
+    {
+      "texture_size": 512,
+      "angle_degrees": 70,
+      "median_magnification": 0.41430238930216906,
+      "perfect_pixel_percent": 0.0,
+      "perfect_full_tile_percent": 0.0,
+      "mask_cplus_evals_per_pixel": 1.0,
+      "mask_cplus_psnr_vs_bicubic_db": 33.53714425272745,
+      "two_tap_psnr_vs_bicubic_db": 32.07340487628541,
+      "mask_cplus_analytic_psnr_db": 32.56074644626662,
+      "two_tap_analytic_psnr_db": 31.334833103448215,
+      "exact_analytic_psnr_db": 87.51303988849752
+    }
+  ],
+  "timing": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.10",
+    "numpy": "2.5.4"
+  }
+}

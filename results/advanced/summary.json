@@ -1,0 +1,107 @@
+{
+  "experiment": "Perspective-correct UV plus Catmull-Rom bicubic reconstruction and exact CPU texel sharing",
+  "source_url": "https://arxiv.org/html/2506.17770v1",
+  "source_scope": "Inspired by sections 3 and 3.1 (List Merge). Not a complete GPU replication or SOTA performance benchmark.",
+  "settings": {
+    "angles": [
+      0,
+      30,
+      60,
+      70
+    ],
+    "texture_sizes": [
+      32,
+      64,
+      128
+    ],
+    "texture_types": [
+      "smooth_low",
+      "smooth_high",
+      "checker"
+    ],
+    "resolution": [
+      512,
+      512
+    ],
+    "sharing_tile_pixels": [
+      8,
+      4
+    ],
+    "quality_cases": 36,
+    "method_rows": 144
+  },
+  "reference": "Known analytic signal evaluated at perspective-correct UV; pointwise reconstruction reference, not pixel-footprint-integrated antialiasing ground truth.",
+  "color_space": "Synthetic values are treated as linear RGB; metrics use raw float64 outputs before clipping. PNGs clamp to [0,1] and quantize without a display transfer curve.",
+  "aggregation": "Per-case MSE averages pixels/channels. Aggregate MSE is the unweighted mean of case MSE values; aggregate PSNR is -10log10(aggregate MSE). Cost summary pools valid rendering pixels over angles. Border margin 2 texels excluded from all quality metrics.",
+  "limit": "Full stencil union with no 32-texel cap; tiles needing more texels are still evaluated exactly. Logical counts do not estimate GPU cache misses or bandwidth. No GPU wave intrinsics, neural texture decompression, or paper stochastic fallbacks.",
+  "checks": {
+    "weight_sum_max_abs_error": 4.440892098500626e-16,
+    "linear_reproduction_max_abs_error": 7.771561172376096e-16,
+    "constant_reproduction_max_abs_error": 2.7755575615628914e-16,
+    "direct_shared_max_abs_error": 0.0,
+    "experiment_direct_shared_max_abs_error": 0.0
+  },
+  "quality_summary": [
+    {
+      "texture": "smooth_low",
+      "nearest_rmse": 0.031899125675327905,
+      "nearest_psnr_db": 29.924424407561233,
+      "bilinear_rmse": 0.004785761437570687,
+      "bilinear_psnr_db": 46.400979081141564,
+      "bicubic_direct_rmse": 0.0003522172889889958,
+      "bicubic_direct_psnr_db": 69.06378660007026,
+      "bicubic_gain_over_bilinear_db": 22.662807518928695
+    },
+    {
+      "texture": "smooth_high",
+      "nearest_rmse": 0.1300045615748909,
+      "nearest_psnr_db": 17.720828179702057,
+      "bilinear_rmse": 0.07250506105606919,
+      "bilinear_psnr_db": 22.79263354802598,
+      "bicubic_direct_rmse": 0.0386791925891409,
+      "bicubic_direct_psnr_db": 28.250452003952688,
+      "bicubic_gain_over_bilinear_db": 5.457818455926709
+    },
+    {
+      "texture": "checker",
+      "nearest_rmse": 0.26712115596210284,
+      "nearest_psnr_db": 11.465834290957789,
+      "bilinear_rmse": 0.21701109524768972,
+      "bilinear_psnr_db": 13.270361223336955,
+      "bicubic_direct_rmse": 0.22446996068885344,
+      "bicubic_direct_psnr_db": 12.976835389868427,
+      "bicubic_gain_over_bilinear_db": -0.2935258334685287
+    }
+  ],
+  "cost_summary": [
+    {
+      "texture_size": 32,
+      "total_pixels": 232461,
+      "unique_texels_per_pixel": 0.6520061429659169,
+      "direct_texels_per_pixel": 16,
+      "logical_evaluation_reduction_percent": 95.92496160646303
+    },
+    {
+      "texture_size": 64,
+      "total_pixels": 232461,
+      "unique_texels_per_pixel": 0.8807326820412886,
+      "direct_texels_per_pixel": 16,
+      "logical_evaluation_reduction_percent": 94.49542073724194
+    },
+    {
+      "texture_size": 128,
+      "total_pixels": 232461,
+      "unique_texels_per_pixel": 1.3660226876766426,
+      "direct_texels_per_pixel": 16,
+      "logical_evaluation_reduction_percent": 91.462358202021
+    }
+  ],
+  "timing": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "repeats": 3,
+    "scope": "Warmup then median full filtering-call time; shared path includes merge/gather and stats. Excludes geometry and reference computation. Python/NumPy CPU timing is not GPU speed."
+  },
+  "plots_created": false
+}

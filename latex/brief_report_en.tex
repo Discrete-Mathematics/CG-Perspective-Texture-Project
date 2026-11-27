@@ -1,0 +1,105 @@
+% Compile from this directory with XeLaTeX:
+% xelatex brief_report_en.tex
+\documentclass[a4paper,11pt]{article}
+\usepackage[a4paper,margin=1.7cm]{geometry}
+\usepackage{fontspec}
+\setmainfont{Latin Modern Roman}
+\usepackage{amsmath,booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.34em}
+\setlength{\abovedisplayskip}{0.32em}
+\setlength{\belowdisplayskip}{0.32em}
+\makeatletter
+\renewcommand\section{\@startsection{section}{1}{\z@}{0.72em}{0.22em}{\normalsize\bfseries}}
+\renewcommand{\@openbib@code}{\itemsep=0.15em \parsep=0pt \parskip=0pt}
+\makeatother
+\pagestyle{plain}
+\emergencystretch=1.5em
+\urlstyle{same}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries Brief Report: Perspective-Correct Texture Mapping\\
+and Budgeted Collaborative Filtering}\\[0.45em]
+{\normalsize Computer Graphics course project}\\[0.2em]
+{\small Two-page brief, 24 November 2026}\\[0.25em]
+{\small Team members to be added \quad (3--5 students)}\\[0.12em]
+{\small Checkpoint: brief report due 30 November 2026}
+\end{center}
+
+\section{Question}
+Screen-linear UV interpolation lets a texture slide as a plane rotates into perspective. Separately, a 16-tap Catmull--Rom reconstruction is expensive if every texel evaluation matters. The rasterizer answers both: an angle sweep of affine against perspective-correct UVs, and a one-evaluation-per-pixel collaborative filter on the corrected UVs.
+
+The first question compares affine interpolation, $uv=\sum_i\lambda_i uv_i$, with perspective-correct interpolation, $uv=\sum_i(\lambda_i uv_i/w_i)/\sum_i(\lambda_i/w_i)$. The second keeps that perspective-correct UV fixed and asks whether Mask Sampling with the C+ fallback can reproduce the 16-tap filter when each active pixel may spend one logical texel evaluation, relative to a two-tap stochastic estimator. Course lectures on rasterization, spatial transformations, perspective projection, and texture mapping supply the pipeline~\cite{course3,course4,course5,course6}. GLSL names the two modes \texttt{smooth} and \texttt{noperspective}; the Vulkan specification states the reciprocal-$w$ rule~\cite{glsl,vulkan}.
+
+\section{Method}
+The UV comparison uses one planar quad of size $2.7\times 1.9$, split into two triangles, a $52^\circ$ field of view, and a $512\times 512$ framebuffer. The texture is a generated $256\times 256$ checkerboard with 12 cells, sampled at the nearest texel. The quad rotates about its vertical axis through $0^\circ$, $15^\circ$, $30^\circ$, $45^\circ$, $60^\circ$, and $70^\circ$. Coverage, the depth buffer, and the sampling rule stay fixed; only the UV formula changes. For screen-space barycentric weights $\lambda_i$, vertex coordinates $uv_i$, and clip-space $w_i$,
+\begin{equation*}
+uv_{\mathrm{perspective}}
+=\frac{\sum_i\lambda_i uv_i/w_i}{\sum_i\lambda_i/w_i}.
+\end{equation*}
+The filter study uses this perspective-correct UV. UV error is the Euclidean distance, in texture pixels, from the affine coordinate to the perspective-correct coordinate. RGB mean absolute error is the average absolute channel difference on pixels covered by both modes, on a 0--255 scale.
+
+The filter study is a CPU model of Mask Sampling plus the C+ fallback of Akenine-M\"oller, Ebelin, Pharr, and Wronski~\cite{ctf}. The kernel is separable Catmull--Rom with $a=-1/2$ and a $4\times 4$ support, so an exact pixel requests 16 taps. Covered pixels are grouped into aligned $8\times 4$ tiles. A covered tile evaluates each unique Catmull--Rom tap once when those taps fit in the active pixels and in a $16\times 16$ window. Otherwise each active pixel draws one tap with probability proportional to the absolute weight, duplicate draws fill missing taps, and equation~(1) of that paper completes the color. The two-tap baseline samples the positive and negative lobes separately~\cite{stf}. PSNR below is the mean of three analytic textures and four seeds, against the 16-tap filter.
+
+\section{Results}
+At $70^\circ$ the affine UV error averages 29.54 texture pixels (95th percentile 49.80) and the RGB mean absolute error is 60.68. At $0^\circ$ that RGB error is 0.02: the plane has no depth variation, so the two UV formulas agree up to lookup precision. With perspective-correct UVs held fixed, the filter comparison is:
+
+\begin{center}
+\small
+\setlength{\tabcolsep}{5.5pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Texture & Mag. &
+\begin{tabular}[t]{@{}c@{}}Full $8\times 4$\\tiles exact\end{tabular} &
+Evals/pixel & C+ PSNR & Two-tap PSNR \\
+\midrule
+$32^{2}$, $0^\circ$ & 10.52 & 100\% & 0.61 & 58.22~dB & 14.32~dB \\
+$128^{2}$, $0^\circ$ & 2.63 & 19.9\% & 0.98 & 57.28~dB & 23.31~dB \\
+$512^{2}$, $70^\circ$ & 0.41 & 0\% & 1.00 & 33.54~dB & 32.07~dB \\
+\bottomrule
+\end{tabular}\par\nopagebreak
+\vspace{0.28em}
+{\footnotesize Magnification is the median. PSNR is the mean of three analytic textures and four seeds against the 16-tap filter.\par}
+\end{center}
+
+Under magnification the shared $4\times 4$ footprint fits in the tile, so full tiles match the cubic while using 0.61 evaluations per pixel instead of 16. At $128^{2}$ and $0^\circ$, 19.9\% of full tiles are exact and the C+ result is still 57.28~dB. Under minification the budget cannot hold the footprint: at $512^{2}$ and $70^\circ$ the magnification is 0.41, no tile is exact, and C+ leads the two-tap estimator by about 1.5~dB.
+
+\section{Scope and what is not claimed}
+One planar quad, synthetic textures, and a CPU tile model. Logical texel counts are not GPU timings. Lighting, mipmaps, clipping, imported meshes, wave intrinsics, neural decoding, and denoising are outside this build. The analytic signal is evaluated at a point, so it is not an area-integrated antialiasing reference. From the project root, \texttt{python src/run\_experiments.py} regenerates the angle sweep and \texttt{python src/run\_sota\_experiments.py} regenerates the filter comparison.
+
+\section{Remaining schedule}
+Team size is 3--5 students. Add member names before submission. The final slides and A4 report are not yet due.
+
+\begin{center}
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{@{}lp{11.6cm}@{}}
+\toprule
+Date & Milestone \\
+\midrule
+By 30 Nov 2026 & Submit this brief. Both experiments have already been run. \\
+14--16 Dec & Add team names and finish rehearsal of the slides and A4 report. \\
+17 or 18 Dec & Present in one of the final two sessions. \\
+By 20 Dec 2026, 23:59 UTC+8 & Submit the final slides and A4 report. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{thebibliography}{9}
+\bibitem{course3} Computer Graphics course lecture 03, Rasterization, 2026.
+\bibitem{course4} Computer Graphics course lecture 04, Spatial Transformations, 2026.
+\bibitem{course5} Computer Graphics course lecture 05, Rotation, Perspective and Projection, 2026.
+\bibitem{course6} Computer Graphics course lecture 06, Texture Mapping, 2026.
+\bibitem{glsl} Khronos Group, \emph{The OpenGL Shading Language, Version 4.60.8}, section 4.3.9.
+\bibitem{vulkan} Khronos Group, \emph{Vulkan Specification}, Triangle Data Interpolation.
+\bibitem{ctf} T.\ Akenine-M\"oller, P.\ Ebelin, M.\ Pharr, and B.\ Wronski. Collaborative Texture Filtering. High-Performance Graphics, 2025. arXiv:2506.17770.
+\bibitem{stf} M.\ Pharr, B.\ Wronski, M.\ Salvi, and M.\ Fajardo. Filtering After Shading With Stochastic Texture Filtering. \emph{Proc.\ ACM Comput.\ Graph.\ Interact.\ Tech.}, 2024.
+\end{thebibliography}
+
+\end{document}
